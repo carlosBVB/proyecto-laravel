@@ -2,42 +2,35 @@
 
 namespace sisVentas\Http\Controllers;
 
-use Illuminate\Http\Request;
-
-use sisVentas\Http\Requests;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Input;
-use sisVentas\Http\Requests\ArticuloFormRequest;
-use sisVentas\Articulo;
 use DB;
-
 use Fpdf;
-
+use sisVentas\Articulo;
+use Illuminate\Http\Request;
+use sisVentas\Http\Requests;
+use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Redirect;
+use sisVentas\Http\Requests\ArticuloFormRequest;
 
 class ArticuloController extends Controller
 {
-    public function __construct()
-    {
+    public function __construct() {
         $this->middleware('auth');
     }
-    public function index(Request $request)
-    {
-        if ($request)
-        {
+
+    public function index(Request $request) {
+        if ($request) {
             $query=trim($request->get('searchText'));
             $articulos=DB::table('articulo as a')
-            ->join('categoria as c','a.idcategoria','=','c.idcategoria')
-            ->select('a.idarticulo','a.nombre','a.codigo','a.stock','c.nombre as categoria','a.descripcion','a.imagen','a.estado','a.fecha')
-            ->where('a.nombre','LIKE','%'.$query.'%')
-            ->orwhere('a.codigo','LIKE','%'.$query.'%')
-            ->orderBy('a.idarticulo','desc')
-       
-            ->paginate(7);
+                ->join('categoria as c','a.idcategoria','=','c.idcategoria')
+                ->select('a.idarticulo','a.nombre','a.codigo','a.stock','c.nombre as categoria','a.descripcion','a.imagen','a.estado','a.fecha')
+                ->where('a.nombre','LIKE','%'.$query.'%')
+                ->orwhere('a.codigo','LIKE','%'.$query.'%')
+                ->orderBy('a.idarticulo','desc')
+                ->paginate(7);
             return view('almacen.articulo.index',["articulos"=>$articulos,"searchText"=>$query]);
 
-             $categorias=DB::table('categoria')->where('condicion','=','1')->get();
+            $categorias=DB::table('categoria')->where('condicion','=','1')->get();
             return view("almacen.articulo.index",["articulo"=>$articulo,"categorias"=>$categorias]);
-
         }
     }
     public function create()
