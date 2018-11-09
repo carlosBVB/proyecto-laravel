@@ -37,7 +37,7 @@ class ArticuloController extends Controller
         $categorias=DB::table('categoria')->where('condicion','=','1')->get();
         return view("almacen.articulo.create",["categorias"=>$categorias]);
     }
-    
+
     public function store (ArticuloFormRequest $request) {
         $articulo=new Articulo;
         $articulo->idcategoria=$request->get('idcategoria');
@@ -48,29 +48,26 @@ class ArticuloController extends Controller
         $articulo->fecha=$request->get('fecha');
         $articulo->estado='Activo';
 
-        if (Input::hasFile('imagen')){
+        if (Input::hasFile('imagen')) {
         	$file=Input::file('imagen');
         	$file->move(public_path().'/imagenes/articulos/',$file->getClientOriginalName());
             $articulo->imagen=$file->getClientOriginalName();
         }
         $articulo->save();
         return Redirect::to('almacen/articulo');
-
     }
-    public function show($id)
-    {
+
+    public function show($id) {
         return view("almacen.articulo.show",["articulo"=>Articulo::findOrFail($id)]);
     }
-    public function edit($id)
-    {
+
+    public function edit($id) {
         $articulo=Articulo::findOrFail($id);
         $categorias=DB::table('categoria')->where('condicion','=','1')->get();
         return view("almacen.articulo.edit",["articulo"=>$articulo,"categorias"=>$categorias]);
     }
     
-    
-    public function update(ArticuloFormRequest $request,$id)
-    {
+    public function update(ArticuloFormRequest $request,$id) {
         $articulo=Articulo::findOrFail($id);
 
         $articulo->idcategoria=$request->get('idcategoria');
@@ -82,7 +79,7 @@ class ArticuloController extends Controller
 
         $articulo->estado='Activo';
 
-        if (Input::hasFile('imagen')){
+        if (Input::hasFile('imagen')) {
         	$file=Input::file('imagen');
         	$file->move(public_path().'/imagenes/articulos/',$file->getClientOriginalName());
         	$articulo->imagen=$file->getClientOriginalName();
@@ -91,96 +88,94 @@ class ArticuloController extends Controller
         $articulo->update();
         return Redirect::to('almacen/articulo');
     }
-    public function destroy($id)
-    {
+
+    public function destroy($id) {
         $articulo=Articulo::findOrFail($id);
         $articulo->Estado='Inactivo';
         $articulo->update();
         return Redirect::to('almacen/articulo');
     }
-    public function reporte(){
-         //Obtenemos los registros
-         $registros=DB::table('articulo as a')
+    
+    public function reporte() {
+        //Obtenemos los registros
+        $registros=DB::table('articulo as a')
             ->join('categoria as c','a.idcategoria','=','c.idcategoria')
             ->select('a.idarticulo','a.nombre','a.codigo','a.stock','c.nombre as categoria','a.descripcion','a.imagen','a.estado')
             ->orderBy('a.nombre','asc')
             ->get();
 
-         $pdf = new Fpdf();
-         $pdf::AddPage();
-         $pdf::SetTextColor(35,56,113);
-         $pdf::SetFont('Arial','B',11);
-         $pdf::Cell(0,10,utf8_decode("Listado Artículos"),0,"","C");
-         $pdf::Ln();
-         $pdf::Ln();
-         $pdf::SetTextColor(0,0,0);  // Establece el color del texto 
-         $pdf::SetFillColor(206, 246, 245); // establece el color del fondo de la celda 
-         $pdf::SetFont('Arial','B',10); 
-         //El ancho de las columnas debe de sumar promedio 190        
-         $pdf::cell(30,8,utf8_decode("Código"),1,"","L",true);
-         $pdf::cell(80,8,utf8_decode("Nombre"),1,"","L",true);
-         $pdf::cell(65,8,utf8_decode("Categoría"),1,"","L",true);
-         $pdf::cell(15,8,utf8_decode("Stock"),1,"","L",true);
-         
-         $pdf::Ln();
-         $pdf::SetTextColor(0,0,0);  // Establece el color del texto 
-         $pdf::SetFillColor(255, 255, 255); // establece el color del fondo de la celda
-         $pdf::SetFont("Arial","",9);
-         
-         foreach ($registros as $reg)
-         {
+        $pdf = new Fpdf();
+        $pdf::AddPage();
+        $pdf::SetTextColor(35,56,113);
+        $pdf::SetFont('Arial','B',11);
+        $pdf::Cell(0,10,utf8_decode("Listado Artículos"),0,"","C");
+        $pdf::Ln();
+        $pdf::Ln();
+        $pdf::SetTextColor(0,0,0);  // Establece el color del texto 
+        $pdf::SetFillColor(206, 246, 245); // establece el color del fondo de la celda 
+        $pdf::SetFont('Arial','B',10); 
+        //El ancho de las columnas debe de sumar promedio 190        
+        $pdf::cell(30,8,utf8_decode("Código"),1,"","L",true);
+        $pdf::cell(80,8,utf8_decode("Nombre"),1,"","L",true);
+        $pdf::cell(65,8,utf8_decode("Categoría"),1,"","L",true);
+        $pdf::cell(15,8,utf8_decode("Stock"),1,"","L",true);
+        
+        $pdf::Ln();
+        $pdf::SetTextColor(0,0,0);  // Establece el color del texto 
+        $pdf::SetFillColor(255, 255, 255); // establece el color del fondo de la celda
+        $pdf::SetFont("Arial","",9);
+        
+        foreach ($registros as $reg) {
             $pdf::cell(30,6,utf8_decode($reg->codigo),1,"","L",true);
             $pdf::cell(80,6,utf8_decode($reg->nombre),1,"","L",true);
             $pdf::cell(65,6,utf8_decode($reg->categoria),1,"","L",true);
             $pdf::cell(15,6,utf8_decode($reg->stock),1,"","L",true);
             $pdf::Ln(); 
-         }
+        }
 
-         $pdf::Output();
-         exit;
+        $pdf::Output();
+        exit;
     }
 
-    public function rcategoriaart(){
-         //Obtenemos los registros
-         $registros=DB::table('articulo as a')
+    public function rcategoriaart() {
+        //Obtenemos los registros
+        $registros=DB::table('articulo as a')
             ->join('categoria as c','a.idcategoria','=','c.idcategoria')
             ->select('a.idarticulo','a.nombre','a.codigo','a.stock','c.nombre as categoria','a.descripcion','a.imagen','a.estado')
             ->where('c.nombre','=', $_GET["idcategoria"])
             ->orderBy('a.nombre','asc')
             ->get();
 
-         $pdf = new Fpdf();
-         $pdf::AddPage();
-         $pdf::SetTextColor(35,56,113);
-         $pdf::SetFont('Arial','B',11);
-         $pdf::Cell(0,10,utf8_decode("Listado Artículos"),0,"","C");
-         $pdf::Ln();
-         $pdf::Ln();
-         $pdf::SetTextColor(0,0,0);  // Establece el color del texto 
-         $pdf::SetFillColor(206, 246, 245); // establece el color del fondo de la celda 
-         $pdf::SetFont('Arial','B',10); 
-         //El ancho de las columnas debe de sumar promedio 190        
-         $pdf::cell(30,8,utf8_decode("Código"),1,"","L",true);
-         $pdf::cell(80,8,utf8_decode("Nombre"),1,"","L",true);
-         $pdf::cell(65,8,utf8_decode("Categoría"),1,"","L",true);
-         $pdf::cell(15,8,utf8_decode("Stock"),1,"","L",true);
+        $pdf = new Fpdf();
+        $pdf::AddPage();
+        $pdf::SetTextColor(35,56,113);
+        $pdf::SetFont('Arial','B',11);
+        $pdf::Cell(0,10,utf8_decode("Listado Artículos"),0,"","C");
+        $pdf::Ln();
+        $pdf::Ln();
+        $pdf::SetTextColor(0,0,0);  // Establece el color del texto 
+        $pdf::SetFillColor(206, 246, 245); // establece el color del fondo de la celda 
+        $pdf::SetFont('Arial','B',10); 
+        //El ancho de las columnas debe de sumar promedio 190        
+        $pdf::cell(30,8,utf8_decode("Código"),1,"","L",true);
+        $pdf::cell(80,8,utf8_decode("Nombre"),1,"","L",true);
+        $pdf::cell(65,8,utf8_decode("Categoría"),1,"","L",true);
+        $pdf::cell(15,8,utf8_decode("Stock"),1,"","L",true);
          
-         $pdf::Ln();
-         $pdf::SetTextColor(0,0,0);  // Establece el color del texto 
-         $pdf::SetFillColor(255, 255, 255); // establece el color del fondo de la celda
-         $pdf::SetFont("Arial","",9);
-         
-         foreach ($registros as $reg)
-         {
+        $pdf::Ln();
+        $pdf::SetTextColor(0,0,0);  // Establece el color del texto 
+        $pdf::SetFillColor(255, 255, 255); // establece el color del fondo de la celda
+        $pdf::SetFont("Arial","",9);
+        
+        foreach ($registros as $reg) {
             $pdf::cell(30,6,utf8_decode($reg->codigo),1,"","L",true);
             $pdf::cell(80,6,utf8_decode($reg->nombre),1,"","L",true);
             $pdf::cell(65,6,utf8_decode($reg->categoria),1,"","L",true);
             $pdf::cell(15,6,utf8_decode($reg->stock),1,"","L",true);
             $pdf::Ln(); 
-         }
+        }
 
-         $pdf::Output();
-         exit;
+        $pdf::Output();
+        exit;
     }
-
 }
