@@ -14,14 +14,12 @@ use Fpdf;
 
 class CategoriaController extends Controller
 {
-    public function __construct()
-    {
+    public function __construct() {
         $this->middleware('auth');
     }
-    public function index(Request $request)
-    {
-        if ($request)
-        {
+
+    public function index(Request $request) {
+        if ($request) {
             $query=trim($request->get('searchText'));
             $categorias=DB::table('categoria')->where('nombre','LIKE','%'.$query.'%')
             ->where ('condicion','=','1')
@@ -30,12 +28,12 @@ class CategoriaController extends Controller
             return view('almacen.categoria.index',["categorias"=>$categorias,"searchText"=>$query]);
         }
     }
-    public function create()
-    {
+
+    public function create() {
         return view("almacen.categoria.create");
     }
-    public function store (CategoriaFormRequest $request)
-    {
+
+    public function store (CategoriaFormRequest $request) {
         $categoria=new Categoria;
         $categoria->nombre=$request->get('nombre');
         $categoria->descripcion=$request->get('descripcion');
