@@ -33,14 +33,12 @@ class ArticuloController extends Controller
             return view("almacen.articulo.index",["articulo"=>$articulo,"categorias"=>$categorias]);
         }
     }
-    public function create()
-    {
+    public function create() {
         $categorias=DB::table('categoria')->where('condicion','=','1')->get();
         return view("almacen.articulo.create",["categorias"=>$categorias]);
-
     }
-    public function store (ArticuloFormRequest $request)
-    {
+    
+    public function store (ArticuloFormRequest $request) {
         $articulo=new Articulo;
         $articulo->idcategoria=$request->get('idcategoria');
         $articulo->codigo=$request->get('codigo');
